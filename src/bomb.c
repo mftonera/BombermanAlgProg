@@ -1,13 +1,13 @@
 // src/bomb.c
 #include "bomb.h"
 #include "player.h"
-#include "level.h"
+#include "level.h" // Incluir level.h para acessar exitX, exitY e map
 #include "raylib.h"
 #include <stdio.h>
 #include <stdlib.h>
 
 Bomb bombs[MAX_BOMBS];
-static Explosion explosions[MAX_EXPLOSIONS];
+Explosion explosions[MAX_EXPLOSIONS];
 
 void InitBombs(void)
 {
@@ -37,7 +37,7 @@ void ExplodeBomb(int x, int y)
     int alcance = player.alcanceExplosao;
 
     AddExplosion(x, y);
-    map[y][x] = TILE_VAZIO;
+    // map[y][x] = TILE_VAZIO; // Remover esta linha para que o tile seja processado abaixo
 
     int dx[] = {1, -1, 0, 0};
     int dy[] = {0, 0, 1, -1};
@@ -55,28 +55,51 @@ void ExplodeBomb(int x, int y)
             DetonateBombAt(nx, ny);
 
             if (map[ny][nx] == TILE_PAREDE_INDESTRUTIVEL)
+            {
+                // Se atingir uma parede indestrutível, a explosão para nessa direção
+                AddExplosion(nx, ny); // Ainda mostra explosão na parede indestrutível
                 break;
+            }
 
-            AddExplosion(nx, ny);
+            AddExplosion(nx, ny); // Adiciona explosão em qualquer tile atingido
 
             if (map[ny][nx] == TILE_PAREDE_DESTRUTIVEL)
             {
-                int sorteio = rand() % 100;
-                if (sorteio < 20)
-                {
-                    map[ny][nx] = TILE_POWERUP_BOMBA;
+                // --- Nova parte: Revelar a saída se esta for a parede certa ---
+                if (nx == exitX && ny == exitY) {
+                    map[ny][nx] = TILE_SAIDA; // Revela a saída!
+                } else {
+                    // Lógica existente para power-ups ou vazio
+                    int sorteio = rand() % 100;
+                    if (sorteio < 20)
+                    {
+                        map[ny][nx] = TILE_POWERUP_BOMBA;
+                    }
+                    else if (sorteio < 40)
+                    {
+                        map[ny][nx] = TILE_POWERUP_EXPLOSAO;
+                    }
+                    else
+                    {
+                        map[ny][nx] = TILE_VAZIO;
+                    }
                 }
-                else if (sorteio < 40)
-                {
-                    map[ny][nx] = TILE_POWERUP_EXPLOSAO;
-                }
-                else
-                {
-                    map[ny][nx] = TILE_VAZIO;
-                }
-                break;
+                break; // A explosão para se destruir uma parede
+            } else if (map[ny][nx] == TILE_SAIDA && nx != x && ny != y) {
+                // Se a explosão atingir a saída já revelada, não a altera
+                // Adicionei a condição (nx != x && ny != y) para não mudar o tile central
+                // da explosão se for a saída
+                break; // Explosão para na saída já revelada
             }
+            // Se o tile for TILE_VAZIO, TILE_POWERUP_BOMBA, TILE_POWERUP_EXPLOSAO, TILE_SAIDA (já revelado)
+            // a explosão continua se propagando.
         }
+    }
+    // O tile central da explosão também deve se tornar vazio ou ser a saída se for o caso
+    if (x == exitX && y == exitY) {
+        map[y][x] = TILE_SAIDA;
+    } else {
+        map[y][x] = TILE_VAZIO;
     }
 }
 
@@ -190,7 +213,7 @@ void DetonateBombAt(int x, int y)
         {
             ExplodeBomb(x, y);
             bombs[i].active = 0;
-            break; // Evita múltiplas ativações da mesma bomba
+            break;
         }
     }
 }

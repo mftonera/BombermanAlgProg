@@ -30,5 +30,8 @@ void DetonateBombAt(int x, int y);
 
 int IsExplosionAt(int x, int y);
 
+extern Bomb bombs[MAX_BOMBS];
+extern Explosion explosions[MAX_EXPLOSIONS];
+
 
 #endif

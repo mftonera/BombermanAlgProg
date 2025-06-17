@@ -1,7 +1,7 @@
 #ifndef ENEMY_H
 #define ENEMY_H
 
-#define MAX_ENEMIES 2
+#define MAX_ENEMIES 1
 
 typedef struct {
     int x, y;

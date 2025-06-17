@@ -1,6 +1,7 @@
 // src/menu.c
 #include "raylib.h"
 #include "menu.h"
+#include "save.h"
 #include <stdio.h>
 #include <stdbool.h>
 
@@ -10,7 +11,8 @@ static const char *menuOptions[MENU_OPTION_COUNT] = {
     "1. Jogar",
     "2. Continuar",
     "3. Carregar Mapa",
-    "4. Sair"
+    "4. Editor de Mapa",
+    "5. Sair",
 };
 
 bool SaveFileExists() {
@@ -23,48 +25,57 @@ bool SaveFileExists() {
 }
 
 int ShowMainMenu(void) {
+    const char *menuOptions[] = {
+        "1. Novo Jogo",
+        "2. Continuar",
+        "3. Carregar Mapa",
+        "4. Editor de Mapa",
+        "5. Sair",
+    };
+
     int selected = 0;
+    int totalOptions = 4;
 
     while (!WindowShouldClose()) {
-        // Entrada do usuário
-        if (IsKeyPressed(KEY_DOWN)) selected = (selected + 1) % MENU_OPTION_COUNT;
-        if (IsKeyPressed(KEY_UP))   selected = (selected - 1 + MENU_OPTION_COUNT) % MENU_OPTION_COUNT;
-        if (IsKeyPressed(KEY_ENTER)) return selected;
+        if (IsKeyPressed(KEY_DOWN)) {
+            do {
+                selected = (selected + 1) % totalOptions;
+            } while (selected == 1 && !SaveFileExiste()); // pula "Continuar" se não houver save
+        }
+
+        if (IsKeyPressed(KEY_UP)) {
+            do {
+                selected = (selected - 1 + totalOptions) % totalOptions;
+            } while (selected == 1 && !SaveFileExiste()); // pula "Continuar" se não houver save
+        }
+
+        if (IsKeyPressed(KEY_ENTER)) {
+            // Se selecionou "Continuar" e não existe save, ignora
+            if (selected == 1 && !SaveFileExiste()) continue;
+            return selected;
+        }
 
         BeginDrawing();
         ClearBackground(RAYWHITE);
 
-        // Cálculos de centralização
-        int screenWidth = GetScreenWidth();
-        int screenHeight = GetScreenHeight();
+        DrawText("Mini Bomberman", GetScreenWidth()/2 - MeasureText("Mini Bomberman", 40)/2, 100, 40, BLACK);
 
-        const char *title = "Mini Bomberman";
-        int titleFontSize = 40;
-        int optionFontSize = 20;
-        int spacing = 40;
-
-        int titleWidth = MeasureText(title, titleFontSize);
-        int titleX = (screenWidth - titleWidth) / 2;
-        int titleY = screenHeight / 5;
-
-        DrawText(title, titleX, titleY, titleFontSize, BLACK);
-
-        int menuStartY = titleY + 80;
-        for (int i = 0; i < MENU_OPTION_COUNT; i++) {
-            if (i == 1 && !SaveFileExists()) continue;  // oculta "Continuar" se não há save
+        int visibleIndex = 0;
+        for (int i = 0; i < totalOptions; i++) {
+            if (i == 1 && !SaveFileExiste()) continue; // oculta “Continuar” se não houver save
 
             Color color = (i == selected) ? RED : DARKGRAY;
-
-            const char *optionText = menuOptions[i];
-            int textWidth = MeasureText(optionText, optionFontSize);
-            int textX = (screenWidth - textWidth) / 2;
-            int textY = menuStartY + i * spacing;
-
-            DrawText(optionText, textX, textY, optionFontSize, color);
+            int textWidth = MeasureText(menuOptions[i], 20);
+            DrawText(menuOptions[i],
+                     GetScreenWidth() / 2 - textWidth / 2,
+                     200 + visibleIndex * 40,
+                     20, color);
+            visibleIndex++;
         }
 
         EndDrawing();
     }
 
-    return 3; // Se fechar a janela, sai do jogo
+    return 3; // ESC ou fechar janela
 }
+

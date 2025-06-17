@@ -3,6 +3,7 @@
 #include "raylib.h"
 #include "level.h"
 #include "bomb.h"
+#include "enemy.h" // Adicionado para reiniciar inimigos
 
 Player player;
 
@@ -10,11 +11,11 @@ void InitPlayer(void)
 {
     player.x = 1;
     player.y = 1;
-    player.bombasDisponiveis = 5;
-    player.bombasMaximas = 5;
+    player.bombasDisponiveis = 50;
+    player.bombasMaximas = 50;
     player.alcanceExplosao = 1;
     player.status = 1;
-    player.pontuacao = 0;
+    player.pontuacao = 0; // A pontuação será mantida ao reiniciar a fase.
 }
 
 void CheckPlayerDamage(void)
@@ -43,7 +44,7 @@ void UpdatePlayer(void)
     if (map[newY][newX] == TILE_VAZIO ||
         map[newY][newX] == TILE_POWERUP_BOMBA ||
         map[newY][newX] == TILE_POWERUP_EXPLOSAO ||
-        map[newY][newX] == TILE_SAIDA)
+        map[newY][newX] == TILE_SAIDA) // O jogador pode andar sobre TILE_SAIDA
     {
         player.x = newX;
         player.y = newY;
@@ -65,9 +66,28 @@ void UpdatePlayer(void)
     }
 
     CheckPlayerDamage();
+
+    // --- Nova parte: Lógica de passagem de fase ---
+    if (map[player.y][player.x] == TILE_SAIDA && IsKeyPressed(KEY_F)) {
+        // Salva a pontuação atual antes de reiniciar
+        int currentScore = player.pontuacao;
+
+        // Reinicia o nível
+        InitLevel();
+        InitPlayer(); // Reinicia posição e status do jogador, bombas, etc.
+
+        // Restaura a pontuação
+        player.pontuacao = currentScore;
+
+        // Reinicia bombas e explosões
+        InitBombs();
+        // Reinicia inimigos para a nova fase
+        InitEnemies();
+    }
+    // --- Fim da nova parte ---
 }
 
-void DrawPlayer(void)
+void DrawPlayer(void)  
 {
     int offsetX = (GetScreenWidth() - (MAP_WIDTH * TILE_SIZE)) / 2;
     int offsetY = (GetScreenHeight() - (MAP_HEIGHT * TILE_SIZE)) / 2;

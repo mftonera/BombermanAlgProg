@@ -8,6 +8,8 @@
 #define MAP_HEIGHT 15
 #define TILE_SIZE 32
 
+bool CarregarMapaDeArquivo(const char *filename);
+
 typedef enum {
     TILE_VAZIO,
     TILE_PAREDE_INDESTRUTIVEL,
@@ -18,6 +20,7 @@ typedef enum {
 } TileType;
 
 extern TileType map[MAP_HEIGHT][MAP_WIDTH];
+extern int exitX, exitY;
 
 void InitLevel(void);
 void DrawLevel(void);
