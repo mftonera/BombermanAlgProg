@@ -1,81 +1,48 @@
-// src/menu.c
 #include "raylib.h"
-#include "menu.h"
-#include "save.h"
 #include <stdio.h>
-#include <stdbool.h>
-
-#define MENU_OPTION_COUNT 4
-
-static const char *menuOptions[MENU_OPTION_COUNT] = {
-    "1. Jogar",
-    "2. Continuar",
-    "3. Carregar Mapa",
-    "4. Editor de Mapa",
-    "5. Sair",
-};
-
-bool SaveFileExists() {
-    FILE *file = fopen("save/save.dat", "rb");
-    if (file) {
-        fclose(file);
-        return true;
-    }
-    return false;
-}
+#include "menu.h"
 
 int ShowMainMenu(void) {
-    const char *menuOptions[] = {
+    const char *opcoes[] = {
         "1. Novo Jogo",
         "2. Continuar",
         "3. Carregar Mapa",
         "4. Editor de Mapa",
-        "5. Sair",
+        "5. Sair"
     };
+    int total = 5;
+    int selecionado = 0;
 
-    int selected = 0;
-    int totalOptions = 4;
+    // ✅ Aguarda o usuário soltar ENTER antes de começar
+    while (IsKeyDown(KEY_ENTER)) {
+        BeginDrawing();
+        ClearBackground(RAYWHITE);
+        DrawText("Aguarde...", GetScreenWidth() / 2 - 80, GetScreenHeight() / 2, 20, DARKGRAY);
+        EndDrawing();
+    }
 
     while (!WindowShouldClose()) {
-        if (IsKeyPressed(KEY_DOWN)) {
-            do {
-                selected = (selected + 1) % totalOptions;
-            } while (selected == 1 && !SaveFileExiste()); // pula "Continuar" se não houver save
-        }
+        // Movimento
+        if (IsKeyPressed(KEY_DOWN)) selecionado = (selecionado + 1) % total;
+        if (IsKeyPressed(KEY_UP)) selecionado = (selecionado - 1 + total) % total;
 
-        if (IsKeyPressed(KEY_UP)) {
-            do {
-                selected = (selected - 1 + totalOptions) % totalOptions;
-            } while (selected == 1 && !SaveFileExiste()); // pula "Continuar" se não houver save
-        }
+        // Escolha
+        if (IsKeyPressed(KEY_ENTER)) return selecionado;
 
-        if (IsKeyPressed(KEY_ENTER)) {
-            // Se selecionou "Continuar" e não existe save, ignora
-            if (selected == 1 && !SaveFileExiste()) continue;
-            return selected;
-        }
-
+        // Desenho
         BeginDrawing();
         ClearBackground(RAYWHITE);
 
-        DrawText("Mini Bomberman", GetScreenWidth()/2 - MeasureText("Mini Bomberman", 40)/2, 100, 40, BLACK);
+        DrawText("Mini Bomberman", GetScreenWidth() / 2 - MeasureText("Mini Bomberman", 40) / 2, 100, 40, BLACK);
 
-        int visibleIndex = 0;
-        for (int i = 0; i < totalOptions; i++) {
-            if (i == 1 && !SaveFileExiste()) continue; // oculta “Continuar” se não houver save
-
-            Color color = (i == selected) ? RED : DARKGRAY;
-            int textWidth = MeasureText(menuOptions[i], 20);
-            DrawText(menuOptions[i],
-                     GetScreenWidth() / 2 - textWidth / 2,
-                     200 + visibleIndex * 40,
-                     20, color);
-            visibleIndex++;
+        for (int i = 0; i < total; i++) {
+            Color cor = (i == selecionado) ? RED : DARKGRAY;
+            int larguraTexto = MeasureText(opcoes[i], 20);
+            DrawText(opcoes[i], GetScreenWidth() / 2 - larguraTexto / 2, 200 + i * 40, 20, cor);
         }
 
         EndDrawing();
     }
 
-    return 3; // ESC ou fechar janela
+    return 4; // default: sair
 }
-

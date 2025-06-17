@@ -1,7 +1,7 @@
 // src/bomb.c
 #include "bomb.h"
 #include "player.h"
-#include "level.h" // Incluir level.h para acessar exitX, exitY e map
+#include "level.h"
 #include "raylib.h"
 #include <stdio.h>
 #include <stdlib.h>
@@ -9,12 +9,17 @@
 Bomb bombs[MAX_BOMBS];
 Explosion explosions[MAX_EXPLOSIONS];
 
+// Para reação em cadeia
+int bombasParaDetonar[MAX_BOMBS];
+int numBombasParaDetonar = 0;
+
 void InitBombs(void)
 {
     for (int i = 0; i < MAX_BOMBS; i++)
     {
         bombs[i].active = 0;
     }
+    numBombasParaDetonar = 0;
 }
 
 void PlantBomb(int x, int y)
@@ -25,7 +30,7 @@ void PlantBomb(int x, int y)
         {
             bombs[i].x = x;
             bombs[i].y = y;
-            bombs[i].timer = 2.0f; // 2 segundos
+            bombs[i].timer = 2.0f;
             bombs[i].active = 1;
             break;
         }
@@ -37,7 +42,6 @@ void ExplodeBomb(int x, int y)
     int alcance = player.alcanceExplosao;
 
     AddExplosion(x, y);
-    // map[y][x] = TILE_VAZIO; // Remover esta linha para que o tile seja processado abaixo
 
     int dx[] = {1, -1, 0, 0};
     int dy[] = {0, 0, 1, -1};
@@ -52,53 +56,45 @@ void ExplodeBomb(int x, int y)
             if (nx < 0 || ny < 0 || nx >= MAP_WIDTH || ny >= MAP_HEIGHT)
                 break;
 
-            DetonateBombAt(nx, ny);
-
             if (map[ny][nx] == TILE_PAREDE_INDESTRUTIVEL)
             {
-                // Se atingir uma parede indestrutível, a explosão para nessa direção
-                AddExplosion(nx, ny); // Ainda mostra explosão na parede indestrutível
                 break;
             }
 
-            AddExplosion(nx, ny); // Adiciona explosão em qualquer tile atingido
+            DetonateBombAt(nx, ny);
+            AddExplosion(nx, ny);
 
             if (map[ny][nx] == TILE_PAREDE_DESTRUTIVEL)
             {
-                // --- Nova parte: Revelar a saída se esta for a parede certa ---
-                if (nx == exitX && ny == exitY) {
-                    map[ny][nx] = TILE_SAIDA; // Revela a saída!
-                } else {
-                    // Lógica existente para power-ups ou vazio
+                if (nx == exitX && ny == exitY)
+                {
+                    map[ny][nx] = TILE_SAIDA;
+                }
+                else
+                {
                     int sorteio = rand() % 100;
                     if (sorteio < 20)
-                    {
                         map[ny][nx] = TILE_POWERUP_BOMBA;
-                    }
                     else if (sorteio < 40)
-                    {
                         map[ny][nx] = TILE_POWERUP_EXPLOSAO;
-                    }
                     else
-                    {
                         map[ny][nx] = TILE_VAZIO;
-                    }
                 }
-                break; // A explosão para se destruir uma parede
-            } else if (map[ny][nx] == TILE_SAIDA && nx != x && ny != y) {
-                // Se a explosão atingir a saída já revelada, não a altera
-                // Adicionei a condição (nx != x && ny != y) para não mudar o tile central
-                // da explosão se for a saída
-                break; // Explosão para na saída já revelada
+                break;
             }
-            // Se o tile for TILE_VAZIO, TILE_POWERUP_BOMBA, TILE_POWERUP_EXPLOSAO, TILE_SAIDA (já revelado)
-            // a explosão continua se propagando.
+            else if (map[ny][nx] == TILE_SAIDA && nx != x && ny != y)
+            {
+                break;
+            }
         }
     }
-    // O tile central da explosão também deve se tornar vazio ou ser a saída se for o caso
-    if (x == exitX && y == exitY) {
+
+    if (x == exitX && y == exitY)
+    {
         map[y][x] = TILE_SAIDA;
-    } else {
+    }
+    else
+    {
         map[y][x] = TILE_VAZIO;
     }
 }
@@ -118,8 +114,19 @@ void UpdateBombs(void)
         }
     }
 
-    // Plantar bomba com espaço
-    if ((IsKeyPressed(KEY_SPACE)) && player.bombasDisponiveis > 0)
+    // Executar bombas marcadas para reação em cadeia
+    for (int i = 0; i < numBombasParaDetonar; i++)
+    {
+        int idx = bombasParaDetonar[i];
+        if (bombs[idx].active)
+        {
+            ExplodeBomb(bombs[idx].x, bombs[idx].y);
+            bombs[idx].active = 0;
+        }
+    }
+    numBombasParaDetonar = 0;
+
+    if (IsKeyPressed(KEY_SPACE) && player.bombasDisponiveis > 0)
     {
         PlantBomb(player.x, player.y);
         player.bombasDisponiveis--;
@@ -211,9 +218,34 @@ void DetonateBombAt(int x, int y)
     {
         if (bombs[i].active && bombs[i].x == x && bombs[i].y == y)
         {
-            ExplodeBomb(x, y);
-            bombs[i].active = 0;
+            // Verifica se já foi marcada
+            int marcada = 0;
+            for (int j = 0; j < numBombasParaDetonar; j++)
+            {
+                if (bombasParaDetonar[j] == i)
+                {
+                    marcada = 1;
+                    break;
+                }
+            }
+
+            if (!marcada && numBombasParaDetonar < MAX_BOMBS)
+            {
+                bombasParaDetonar[numBombasParaDetonar++] = i;
+            }
             break;
         }
     }
+}
+
+int IsBombAt(int x, int y)
+{
+    for (int i = 0; i < MAX_BOMBS; i++)
+    {
+        if (bombs[i].active && bombs[i].x == x && bombs[i].y == y)
+        {
+            return 1;
+        }
+    }
+    return 0;
 }

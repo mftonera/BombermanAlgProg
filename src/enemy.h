@@ -1,7 +1,7 @@
 #ifndef ENEMY_H
 #define ENEMY_H
 
-#define MAX_ENEMIES 1
+#define MAX_ENEMIES 2
 
 typedef struct {
     int x, y;
@@ -15,5 +15,6 @@ extern Enemy enemies[MAX_ENEMIES];
 void InitEnemies(void);
 void UpdateEnemies(void);
 void DrawEnemies(void);
+void UnloadEnemies(void);
 
 #endif

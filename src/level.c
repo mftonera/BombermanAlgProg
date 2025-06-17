@@ -52,7 +52,7 @@ void InitLevel(void) {
     // percorre o mapa para encontrar a primeira parede destrutível e a define como saída.
     if (!saidaColocada) {
         for (int y = MAP_HEIGHT - 2; y >= 0; y--) {
-            for (int x = MAP_WIDTH - 2; x >= 0; x--) {
+            for (int x = MAP_WIDTH - 2; x >= 0;  x--) {
                 if (map[y][x] == TILE_PAREDE_DESTRUTIVEL) {
                     exitX = x;
                     exitY = y;
