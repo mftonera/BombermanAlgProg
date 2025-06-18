@@ -18,6 +18,22 @@ int main(void)
     SetExitKey(KEY_NINE);
     SetTargetFPS(60);
 
+    Texture2D playerTexture = LoadTexture("resources/player.png");
+    Texture2D enemyTexture = LoadTexture("resources/enemy.png");
+    Texture2D bombTexture = LoadTexture("resources/bomb.png");
+
+    Texture2D groundTex = LoadTexture("resources/ground.png");
+    Texture2D destructibleWallTex = LoadTexture("resources/destructible_wall.png");
+    Texture2D wallTopTex = LoadTexture("resources/wall_top.png");
+    Texture2D wallBottomTex = LoadTexture("resources/wall_bottom.png");
+    Texture2D wallSideLeftTex = LoadTexture("resources/wall_side_left.png");
+    Texture2D wallSideRightTex = LoadTexture("resources/wall_side_right.png");
+    Texture2D wallCornerTL_Tex = LoadTexture("resources/wall_corner_tl.png");
+    Texture2D wallCornerTR_Tex = LoadTexture("resources/wall_corner_tr.png");
+    Texture2D wallCornerBL_Tex = LoadTexture("resources/wall_corner_bl.png");
+    Texture2D wallCornerBR_Tex = LoadTexture("resources/wall_corner_br.png");
+    Texture2D wallMiddleTex = LoadTexture("resources/wall_middle.png");
+
     while (!WindowShouldClose())
     {
         while (GetKeyPressed() != 0);  // limpa buffer de teclas
@@ -84,10 +100,21 @@ int main(void)
             BeginDrawing();
             ClearBackground(RAYWHITE);
 
-            DrawLevel();
-            DrawBombs();
+            DrawLevel(groundTex, 
+                destructibleWallTex, 
+                wallTopTex, 
+                wallBottomTex, 
+                wallSideLeftTex,
+                wallSideRightTex,
+                wallCornerTL_Tex, 
+                wallCornerTR_Tex, 
+                wallCornerBL_Tex, 
+                wallCornerBR_Tex, 
+                wallMiddleTex
+            );
+            DrawBombs(bombTexture);
             DrawExplosions();
-            DrawEnemies();
+            DrawEnemies(enemyTexture);
 
             int gridWidth = MAP_WIDTH * TILE_SIZE;
             int offsetX = (GetScreenWidth() - gridWidth) / 2;
@@ -110,7 +137,7 @@ int main(void)
             DrawText(pontosTexto, 10, 10, 20, BLACK);
 
             if (player.status) {
-                DrawPlayer();
+                DrawPlayer(playerTexture);
             }
             else {
                 DrawText("GAME  OVER", 250, 220, 40, RED);
@@ -131,8 +158,22 @@ int main(void)
             EndDrawing();
         }
     }
-    
-    UnloadEnemies();
+
+    UnloadTexture(playerTexture);
+    UnloadTexture(enemyTexture);
+    UnloadTexture(bombTexture);
+    UnloadTexture(groundTex);
+    UnloadTexture(destructibleWallTex);
+    UnloadTexture(wallTopTex);
+    UnloadTexture(wallBottomTex);
+    UnloadTexture(wallSideLeftTex);
+    UnloadTexture(wallSideRightTex);
+    UnloadTexture(wallCornerTL_Tex);
+    UnloadTexture(wallCornerTR_Tex);
+    UnloadTexture(wallCornerBL_Tex);
+    UnloadTexture(wallCornerBR_Tex);
+    UnloadTexture(wallMiddleTex);
+
     CloseWindow();
     return 0;
 }

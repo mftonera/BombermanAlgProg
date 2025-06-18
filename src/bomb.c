@@ -8,6 +8,7 @@
 
 Bomb bombs[MAX_BOMBS];
 Explosion explosions[MAX_EXPLOSIONS];
+Texture2D bombTexture;
 
 // Para reação em cadeia
 int bombasParaDetonar[MAX_BOMBS];
@@ -133,7 +134,7 @@ void UpdateBombs(void)
     }
 }
 
-void DrawBombs(void)
+void DrawBombs(Texture2D bombTexture)
 {
     int offsetX = (GetScreenWidth() - (MAP_WIDTH * TILE_SIZE)) / 2;
     int offsetY = (GetScreenHeight() - (MAP_HEIGHT * TILE_SIZE)) / 2;
@@ -142,11 +143,11 @@ void DrawBombs(void)
     {
         if (bombs[i].active)
         {
-            DrawCircle(
-                offsetX + bombs[i].x * TILE_SIZE + TILE_SIZE / 2,
-                offsetY + bombs[i].y * TILE_SIZE + TILE_SIZE / 2,
-                TILE_SIZE / 3,
-                BLACK);
+            DrawTexture(
+                bombTexture,
+                offsetX + bombs[i].x * TILE_SIZE,
+                offsetY + bombs[i].y * TILE_SIZE,
+                WHITE);
         }
     }
 }

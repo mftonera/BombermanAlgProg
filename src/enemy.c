@@ -69,21 +69,24 @@ void InitEnemies(void)
 
         enemies[i].alive = 1;
         enemies[i].moveTimer = 0;
+        enemies[i].facingDirection = 1;
     }
 }
 
 void UpdateEnemies(void)
 {
-    float moveDelay = 0.8f;
+    float moveDelay = 0.8f; // segundos entre cada passo
 
     for (int i = 0; i < MAX_ENEMIES; i++)
     {
-        if (!enemies[i].alive) continue;
+        if (!enemies[i].alive)
+            continue;
 
         enemies[i].moveTimer += GetFrameTime();
-        if (enemies[i].moveTimer < moveDelay) continue;
+        if (enemies[i].moveTimer < moveDelay)
+            continue; // ainda não é hora de mover
 
-        enemies[i].moveTimer = 0;
+        enemies[i].moveTimer = 0; // resetar timer após mover
 
         int nx = enemies[i].x + enemies[i].dirX;
         int ny = enemies[i].y + enemies[i].dirY;
@@ -91,21 +94,24 @@ void UpdateEnemies(void)
         bool bateu = (nx < 0 || ny < 0 || nx >= MAP_WIDTH || ny >= MAP_HEIGHT ||
                       map[ny][nx] == TILE_PAREDE_INDESTRUTIVEL ||
                       map[ny][nx] == TILE_PAREDE_DESTRUTIVEL ||
-                      IsEnemyAt(nx, ny, i)|| IsBombAt(nx,ny));
-                      
+                      IsEnemyAt(nx, ny, i)
+        );
 
         if (bateu)
         {
+            // Tentar uma nova direção aleatória até encontrar uma válida
             for (int tentativa = 0; tentativa < 4; tentativa++)
             {
                 int d = rand() % 4;
-                int dx = (d == 0) - (d == 1);
-                int dy = (d == 2) - (d == 3);
+                int dx = (d == 0) - (d == 1); // 1 ou -1 para X
+                int dy = (d == 2) - (d == 3); // 1 ou -1 para Y
+
                 int tx = enemies[i].x + dx;
                 int ty = enemies[i].y + dy;
 
-                if (tx >= 0 && tx < MAP_WIDTH && ty >= 0 && ty < MAP_HEIGHT &&
-                    map[ty][tx] == TILE_VAZIO && !IsEnemyAt(tx, ty, i))
+                if (tx >= 0 && tx < MAP_WIDTH &&
+                    ty >= 0 && ty < MAP_HEIGHT &&
+                    map[ty][tx] == TILE_VAZIO)
                 {
                     enemies[i].dirX = dx;
                     enemies[i].dirY = dy;
@@ -119,12 +125,20 @@ void UpdateEnemies(void)
             enemies[i].y = ny;
         }
 
+        // Atualiza a direção que o inimigo "olha" com base no movimento horizontal
+        if (enemies[i].dirX != 0)
+        {
+            enemies[i].facingDirection = enemies[i].dirX;
+        }
+
+        // Checar dano por fogo
         if (IsExplosionAt(enemies[i].x, enemies[i].y))
         {
             enemies[i].alive = 0;
             player.pontuacao += 100;
         }
 
+        // Checar colisão com jogador
         if (player.status && enemies[i].x == player.x && enemies[i].y == player.y)
         {
             player.status = 0;
@@ -132,19 +146,28 @@ void UpdateEnemies(void)
     }
 }
 
-void DrawEnemies(void)
+void DrawEnemies(Texture2D enemyTexture)
 {
     int offsetX = (GetScreenWidth() - (MAP_WIDTH * TILE_SIZE)) / 2;
     int offsetY = (GetScreenHeight() - (MAP_HEIGHT * TILE_SIZE)) / 2;
 
     for (int i = 0; i < MAX_ENEMIES; i++)
     {
-        if (!enemies[i].alive) continue;
+        if (!enemies[i].alive)
+            continue;
 
-        DrawTexture(enemyTexture,
-            offsetX + enemies[i].x * TILE_SIZE,
-            offsetY + enemies[i].y * TILE_SIZE,
-            WHITE);
+        Rectangle sourceRec = { 0.0f, 0.0f, (float)enemyTexture.width, (float)enemyTexture.height };
+        
+        if (enemies[i].facingDirection == 1) {
+            sourceRec.width = -sourceRec.width;
+        }
+
+        Vector2 destPos = { 
+            (float)(offsetX + enemies[i].x * TILE_SIZE), 
+            (float)(offsetY + enemies[i].y * TILE_SIZE) 
+        };
+
+        DrawTextureRec(enemyTexture, sourceRec, destPos, WHITE);
     }
 }
 

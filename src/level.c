@@ -66,30 +66,58 @@ void InitLevel(void) {
     // --- Fim da nova parte ---
 }
 
-void DrawLevel(void) {
+void DrawLevel(
+    Texture2D groundTexture, 
+    Texture2D destructibleWallTexture,
+    Texture2D wallTop,
+    Texture2D wallBottom,
+    Texture2D wallSideLeft,
+    Texture2D wallSideRight,
+    Texture2D wallCornerTL,
+    Texture2D wallCornerTR,
+    Texture2D wallCornerBL,
+    Texture2D wallCornerBR,
+    Texture2D wallMiddle) 
+{
     int offsetX = (GetScreenWidth() - (MAP_WIDTH * TILE_SIZE)) / 2;
     int offsetY = (GetScreenHeight() - (MAP_HEIGHT * TILE_SIZE)) / 2;
 
     for (int y = 0; y < MAP_HEIGHT; y++) {
         for (int x = 0; x < MAP_WIDTH; x++) {
-            Rectangle tile = {
-                offsetX + x * TILE_SIZE,
-                offsetY + y * TILE_SIZE,
-                TILE_SIZE, TILE_SIZE
-            };
+            Vector2 position = { (float)(offsetX + x * TILE_SIZE), (float)(offsetY + y * TILE_SIZE) };
+            TileType currentTile = map[y][x];
 
-            Color color;
-            switch (map[y][x]) {
-                case TILE_VAZIO:              color = LIGHTGRAY; break;
-                case TILE_PAREDE_INDESTRUTIVEL: color = DARKGRAY;  break;
-                case TILE_PAREDE_DESTRUTIVEL:   color = BROWN;     break;
-                case TILE_SAIDA:               color = BLUE;      break;
-                case TILE_POWERUP_BOMBA:       color = GREEN;     break;
-                case TILE_POWERUP_EXPLOSAO:    color = RED;       break;
+            switch (currentTile) {
+                case TILE_VAZIO:
+                case TILE_POWERUP_BOMBA:
+                case TILE_POWERUP_EXPLOSAO:
+                case TILE_SAIDA:
+                    DrawTextureV(groundTexture, position, WHITE);
+                    break;
+
+                case TILE_PAREDE_DESTRUTIVEL:
+                    DrawTextureV(destructibleWallTexture, position, WHITE);
+                    break;
+                
+                case TILE_PAREDE_INDESTRUTIVEL:
+                {
+                    bool isTopEdge = (y == 0) || (map[y - 1][x] != TILE_PAREDE_INDESTRUTIVEL);
+                    bool isBottomEdge = (y == MAP_HEIGHT - 1) || (map[y + 1][x] != TILE_PAREDE_INDESTRUTIVEL);
+                    bool isLeftEdge = (x == 0) || (map[y][x - 1] != TILE_PAREDE_INDESTRUTIVEL);
+                    bool isRightEdge = (x == MAP_WIDTH - 1) || (map[y][x + 1] != TILE_PAREDE_INDESTRUTIVEL);
+
+                    if (isTopEdge && isLeftEdge)         DrawTextureV(wallCornerTL, position, WHITE);
+                    else if (isTopEdge && isRightEdge)    DrawTextureV(wallCornerTR, position, WHITE);
+                    else if (isBottomEdge && isLeftEdge)  DrawTextureV(wallCornerBL, position, WHITE);
+                    else if (isBottomEdge && isRightEdge) DrawTextureV(wallCornerBR, position, WHITE);
+                    else if (isTopEdge)                   DrawTextureV(wallTop, position, WHITE);
+                    else if (isBottomEdge)                DrawTextureV(wallBottom, position, WHITE);
+                    else if (isLeftEdge)                  DrawTextureV(wallSideLeft, position, WHITE);  // <-- Usa a textura da esquerda
+                    else if (isRightEdge)                 DrawTextureV(wallSideRight, position, WHITE); // <-- Usa a textura da direita
+                    else                                  DrawTextureV(wallMiddle, position, WHITE);
+                    break;
+                }
             }
-
-            DrawRectangleRec(tile, color);
-            DrawRectangleLinesEx(tile, 1, BLACK);
         }
     }
 }

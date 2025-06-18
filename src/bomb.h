@@ -2,6 +2,8 @@
 #ifndef BOMB_H
 #define BOMB_H
 
+#include "raylib.h"
+
 #define MAX_BOMBS 10
 #define MAX_EXPLOSIONS 50
 
@@ -19,7 +21,7 @@ typedef struct {
 
 void InitBombs(void);
 void UpdateBombs(void);
-void DrawBombs(void);
+void DrawBombs(Texture2D bombTexture);
 void PlantBomb(int x, int y);
 
 void DrawExplosions(void);

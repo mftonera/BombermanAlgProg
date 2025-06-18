@@ -6,6 +6,7 @@
 #include "enemy.h"
 
 Player player;
+Texture2D playerTexture;
 
 void InitPlayer(void)
 {
@@ -16,6 +17,7 @@ void InitPlayer(void)
     player.alcanceExplosao = 1;
     player.status = 1;
     player.pontuacao = 0;
+    player.facingDirection = -1;
 }
 
 void CheckPlayerDamage(void)
@@ -31,8 +33,14 @@ void UpdatePlayer(void)
     int newX = player.x;
     int newY = player.y;
 
-    if (IsKeyPressed(KEY_RIGHT) || IsKeyPressed(KEY_D)) newX++;
-    if (IsKeyPressed(KEY_LEFT)  || IsKeyPressed(KEY_A)) newX--;
+    if (IsKeyPressed(KEY_RIGHT) || IsKeyPressed(KEY_D)){ 
+        newX++;
+        player.facingDirection = -1;
+    }
+    if (IsKeyPressed(KEY_LEFT)  || IsKeyPressed(KEY_A)){
+        newX--;
+        player.facingDirection = 1;
+    }
     if (IsKeyPressed(KEY_DOWN)  || IsKeyPressed(KEY_S)) newY++;
     if (IsKeyPressed(KEY_UP)    || IsKeyPressed(KEY_W)) newY--;
 
@@ -76,15 +84,21 @@ void UpdatePlayer(void)
     }
 }
 
-void DrawPlayer(void)
+void DrawPlayer(Texture2D playerTexture)
 {
     int offsetX = (GetScreenWidth() - (MAP_WIDTH * TILE_SIZE)) / 2;
     int offsetY = (GetScreenHeight() - (MAP_HEIGHT * TILE_SIZE)) / 2;
 
-    DrawRectangle(
-        offsetX + player.x * TILE_SIZE,
-        offsetY + player.y * TILE_SIZE,
-        TILE_SIZE,
-        TILE_SIZE,
-        BLUE);
+    Rectangle sourceRec = { 0.0f, 0.0f, (float)playerTexture.width, (float)playerTexture.height };
+    
+    if (player.facingDirection == -1) {
+        sourceRec.width = -sourceRec.width;
+    }
+
+    Vector2 destPos = { 
+        (float)(offsetX + player.x * TILE_SIZE), 
+        (float)(offsetY + player.y * TILE_SIZE) 
+    };
+
+    DrawTextureRec(playerTexture, sourceRec, destPos, WHITE);
 }
