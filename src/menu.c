@@ -13,6 +13,11 @@ int ShowMainMenu(void) {
     int total = 5;
     int selecionado = 0;
 
+    // Carrega a fonte personalizada
+    Font fonteMenu = LoadFont("resources/fonte.ttf");
+    float fontSize = 30;
+    float spacing = 1;
+
     // ✅ Aguarda o usuário soltar ENTER antes de começar
     while (IsKeyDown(KEY_ENTER)) {
         BeginDrawing();
@@ -27,7 +32,10 @@ int ShowMainMenu(void) {
         if (IsKeyPressed(KEY_UP)) selecionado = (selecionado - 1 + total) % total;
 
         // Escolha
-        if (IsKeyPressed(KEY_ENTER)) return selecionado;
+        if (IsKeyPressed(KEY_ENTER)) {
+            UnloadFont(fonteMenu); // libera fonte antes de sair
+            return selecionado;
+        }
 
         // Desenho
         BeginDrawing();
@@ -37,12 +45,16 @@ int ShowMainMenu(void) {
 
         for (int i = 0; i < total; i++) {
             Color cor = (i == selecionado) ? RED : DARKGRAY;
-            int larguraTexto = MeasureText(opcoes[i], 20);
-            DrawText(opcoes[i], GetScreenWidth() / 2 - larguraTexto / 2, 200 + i * 40, 20, cor);
+            Vector2 pos = {
+                20,
+                GetScreenHeight() - total * 45 - 40 + i * 45
+            };
+            DrawTextEx(fonteMenu, opcoes[i], pos, fontSize, spacing, cor);
         }
 
         EndDrawing();
     }
 
+    UnloadFont(fonteMenu);
     return 4; // default: sair
 }

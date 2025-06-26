@@ -29,7 +29,6 @@ char *SelecionarMapaPersonalizado(void) {
 
     int selecionado = 0;
 
-    // Aguarda o usuário soltar ENTER antes de desenhar
     while (IsKeyDown(KEY_ENTER)) {
         BeginDrawing();
         ClearBackground(RAYWHITE);

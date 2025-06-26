@@ -48,6 +48,7 @@ PauseAction ShowPauseMenu(bool isGameMode) {
                     case 0: return PAUSE_RETURN;
                     case 1: return PAUSE_EXIT;
                     case 2: return PAUSE_RETURN_TO_MENU;
+                    default: return PAUSE_RETURN;
                 }
             }
         }

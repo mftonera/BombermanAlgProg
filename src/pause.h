@@ -10,9 +10,6 @@ typedef enum {
     PAUSE_RETURN_TO_MENU
 } PauseAction;
 
-// Exibe o menu de pause. 
-// Se `isGameMode == true`: mostra opções de salvar, retornar, sair e voltar ao menu.
-// Se `isGameMode == false`: remove a opção de salvar (ex: editor de mapas).
 PauseAction ShowPauseMenu(bool isGameMode);
 
 #endif

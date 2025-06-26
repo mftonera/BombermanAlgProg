@@ -3,7 +3,7 @@
 #include "player.h"
 #include "level.h"
 #include "raylib.h"
-#include <stdio.h>
+#include <stdio.h>  
 #include <stdlib.h>
 
 Bomb bombs[MAX_BOMBS];
