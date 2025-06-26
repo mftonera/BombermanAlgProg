@@ -49,15 +49,15 @@ char *SelecionarMapaPersonalizado(void) {
         if (IsKeyPressed(KEY_BACKSPACE)) return NULL;
 
         BeginDrawing();
-        ClearBackground(RAYWHITE);
-        DrawText("Selecione um mapa personalizado", 80, 50, 30, BLACK);
+        ClearBackground((Color){28, 20, 41, 255});
+        DrawText("Selecione um mapa personalizado", 80, 50, 30, WHITE);
 
         for (int i = 0; i < total; i++) {
-            Color cor = (i == selecionado) ? RED : DARKGRAY;
+            Color cor = (i == selecionado) ? RED : WHITE;
             DrawText(nomes[i], 100, 100 + i * 30, 20, cor);
         }
 
-        DrawText("ENTER: Carregar  |  BACKSPACE: Cancelar", 80, 700, 20, GRAY);
+        DrawText("ENTER: Carregar  |  BACKSPACE: Cancelar", 80, 700, 20, WHITE);
         EndDrawing();
     }
 

@@ -2,6 +2,7 @@
 #define PAUSE_H
 
 #include <stdbool.h>
+#include "raylib.h"
 
 typedef enum {
     PAUSE_RETURN = 0,
@@ -10,6 +11,8 @@ typedef enum {
     PAUSE_RETURN_TO_MENU
 } PauseAction;
 
-PauseAction ShowPauseMenu(bool isGameMode);
+
+PauseAction ShowPauseMenu(bool isGameMode, Font font);
+
 
 #endif

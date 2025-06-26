@@ -17,7 +17,7 @@ typedef struct {
 extern Player player;
 
 void InitPlayer(void);
-void UpdatePlayer(void);
+void UpdatePlayer(Sound powerupSound);
 void DrawPlayer(Texture2D playerTexture);
 
 #endif

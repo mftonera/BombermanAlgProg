@@ -1,7 +1,7 @@
 #include "raylib.h"
 #include "pause.h"
 
-PauseAction ShowPauseMenu(bool isGameMode) {
+PauseAction ShowPauseMenu(bool isGameMode, Font font) {
     const char *optionsAll[] = {
         "1. Return",
         "2. Save Game",
@@ -24,20 +24,20 @@ PauseAction ShowPauseMenu(bool isGameMode) {
         if (IsKeyPressed(KEY_UP)) selected = (selected - 1 + optionCount) % optionCount;
 
         BeginDrawing();
-        ClearBackground(RAYWHITE);
-        DrawText("Paused", GetScreenWidth() / 2 - MeasureText("Paused", 40) / 2, 100, 40, BLACK);
+        ClearBackground((Color){28, 20, 41, 255});
+        DrawTextEx(font, "Pausado", (Vector2){GetScreenWidth() / 2 - MeasureTextEx(font, "Pausado", 40, 1).x / 2, 100}, 40, 1, WHITE);
 
         for (int i = 0; i < optionCount; i++) {
-            Color color = (i == selected) ? RED : DARKGRAY;
-            int textWidth = MeasureText(options[i], 20);
-            DrawText(options[i], GetScreenWidth() / 2 - textWidth / 2, 200 + i * 40, 20, color);
+            Color color = (i == selected) ? DARKGRAY : WHITE;
+            DrawTextEx(font, options[i], (Vector2){GetScreenWidth() / 2 - MeasureTextEx(font, options[i], 20, 1).x / 2, 200 + i * 40}, 20, 1, color);
+
         }
 
         EndDrawing();
 
         if (IsKeyPressed(KEY_ENTER)) {
             if (isGameMode) {
-                switch (selected) {
+                switch (selected) { 
                     case 0: return PAUSE_RETURN;
                     case 1: return PAUSE_SAVE;
                     case 2: return PAUSE_EXIT;
@@ -48,7 +48,6 @@ PauseAction ShowPauseMenu(bool isGameMode) {
                     case 0: return PAUSE_RETURN;
                     case 1: return PAUSE_EXIT;
                     case 2: return PAUSE_RETURN_TO_MENU;
-                    default: return PAUSE_RETURN;
                 }
             }
         }

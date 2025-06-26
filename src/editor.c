@@ -46,8 +46,8 @@ void AbrirEditorDeMapa() {
         if (IsKeyPressed(KEY_ENTER)) {
             while (IsKeyDown(KEY_ENTER)) {
                 BeginDrawing();
-                ClearBackground(RAYWHITE);
-                DrawTextEx(fonte, "Aguarde...", (Vector2){10, 10}, fonteTamanho, fonteEspacamento, GRAY);
+                ClearBackground((Color){28, 20, 41, 255});
+                DrawTextEx(fonte, "Aguarde...", (Vector2){10, 10}, fonteTamanho, fonteEspacamento, WHITE);
                 EndDrawing();
             }
             modoSalvar = true;
@@ -57,9 +57,9 @@ void AbrirEditorDeMapa() {
             bool confirmarSaida = false;
             while (!WindowShouldClose()) {
                 BeginDrawing();
-                ClearBackground(RAYWHITE);
-                DrawTextEx(fonte, "Deseja sair do editor?", (Vector2){240, 180}, fonteTamanho, fonteEspacamento, BLACK);
-                DrawTextEx(fonte, "ENTER: Sim    BACKSPACE: Cancelar", (Vector2){180, 240}, fonteTamanho, fonteEspacamento, DARKGRAY);
+                ClearBackground((Color){28, 20, 41, 255});
+                DrawTextEx(fonte, "Deseja sair do editor?", (Vector2){240, 180}, fonteTamanho, fonteEspacamento, WHITE);
+                DrawTextEx(fonte, "ENTER: Sim    BACKSPACE: Cancelar", (Vector2){180, 240}, fonteTamanho, fonteEspacamento, WHITE);
                 EndDrawing();
 
                 if (IsKeyPressed(KEY_ENTER)) { confirmarSaida = true; break; }
@@ -107,16 +107,16 @@ void AbrirEditorDeMapa() {
                 }
 
                 BeginDrawing();
-                ClearBackground(RAYWHITE);
-                DrawTextEx(fonte, "Digite o nome do arquivo e pressione ENTER para salvar", (Vector2){50, 50}, fonteTamanho, fonteEspacamento, BLACK);
-                DrawTextEx(fonte, "Backspace para corrigir", (Vector2){50, 90}, fonteTamanho, fonteEspacamento, GRAY);
-                DrawTextEx(fonte, nomeArquivo, (Vector2){50, 130}, fonteTamanho, fonteEspacamento, DARKBLUE);
+                ClearBackground((Color){28, 20, 41, 255});
+                DrawTextEx(fonte, "Digite o nome do arquivo e pressione ENTER para salvar", (Vector2){50, 50}, fonteTamanho, fonteEspacamento, WHITE);
+                DrawTextEx(fonte, "Backspace para corrigir", (Vector2){50, 90}, fonteTamanho, fonteEspacamento, WHITE);
+                DrawTextEx(fonte, nomeArquivo, (Vector2){50, 130}, fonteTamanho, fonteEspacamento, RED);
                 EndDrawing();
             }
         }
 
         BeginDrawing();
-        ClearBackground(RAYWHITE);
+        ClearBackground((Color){28, 20, 41, 255});
 
         for (int y = 0; y < MAP_HEIGHT; y++) {
             for (int x = 0; x < MAP_WIDTH; x++) {
@@ -136,8 +136,8 @@ void AbrirEditorDeMapa() {
 
         DrawRectangleLines(offsetX + cursorX * tileSize, offsetY + cursorY * tileSize, tileSize, tileSize, RED);
 
-        DrawTextEx(fonte, "Q: Parede | E: Tijolo | C: Limpar", (Vector2){10, 10}, fonteTamanho, fonteEspacamento, BLACK);
-        DrawTextEx(fonte, "ENTER: Salvar | ESC: Menu", (Vector2){10, 50}, fonteTamanho, fonteEspacamento, DARKGRAY);
+        DrawTextEx(fonte, "Q: Parede | E: Tijolo | C: Limpar", (Vector2){10, 10}, fonteTamanho, fonteEspacamento, WHITE);
+        DrawTextEx(fonte, "ENTER: Salvar | ESC: Menu", (Vector2){10, 50}, fonteTamanho, fonteEspacamento, WHITE);
 
         EndDrawing();
     }

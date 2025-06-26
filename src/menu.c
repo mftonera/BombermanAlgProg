@@ -2,53 +2,76 @@
 #include <stdio.h>
 #include "menu.h"
 
-int ShowMainMenu(void) {
+int ShowMainMenu(Font font, Texture2D titleTexture, Color background,
+                 Texture2D playerTexture)
+
+{
     const char *opcoes[] = {
         "1. Novo Jogo",
         "2. Continuar",
         "3. Carregar Mapa",
         "4. Editor de Mapa",
-        "5. Sair"
-    };
+        "5. Sair"};
     int total = 5;
     int selecionado = 0;
 
     // Carrega a fonte personalizada
     Font fonteMenu = LoadFont("resources/fonte.ttf");
     float fontSize = 30;
-    float spacing = 1;
 
     // ✅ Aguarda o usuário soltar ENTER antes de começar
-    while (IsKeyDown(KEY_ENTER)) {
+    while (IsKeyDown(KEY_ENTER))
+    {
         BeginDrawing();
-        ClearBackground(RAYWHITE);
-        DrawText("Aguarde...", GetScreenWidth() / 2 - 80, GetScreenHeight() / 2, 20, DARKGRAY);
+        ClearBackground(background);
+        DrawText("Aguarde...", GetScreenWidth() / 2 - 80, GetScreenHeight() / 2, 20, (Color){28, 20, 41, 255});
         EndDrawing();
     }
 
-    while (!WindowShouldClose()) {
+    while (!WindowShouldClose())
+    {
         // Movimento
-        if (IsKeyPressed(KEY_DOWN)) selecionado = (selecionado + 1) % total;
-        if (IsKeyPressed(KEY_UP)) selecionado = (selecionado - 1 + total) % total;
+        if (IsKeyPressed(KEY_DOWN))
+            selecionado = (selecionado + 1) % total;
+        if (IsKeyPressed(KEY_UP))
+            selecionado = (selecionado - 1 + total) % total;
 
         // Escolha
-        if (IsKeyPressed(KEY_ENTER)) {
+        if (IsKeyPressed(KEY_ENTER))
+        {
             UnloadFont(fonteMenu); // libera fonte antes de sair
             return selecionado;
         }
 
         // Desenho
         BeginDrawing();
-        ClearBackground(RAYWHITE);
+        // Dimensões e posição base
+        float playerScale = 8.5f;
+        int spacing = 10;
+        int margin = 20;
 
-        DrawText("Mini Bomberman", GetScreenWidth() / 2 - MeasureText("Mini Bomberman", 40) / 2, 100, 40, BLACK);
+        int startX = GetScreenWidth() - (playerTexture.width * playerScale) - margin;
+        int startY = GetScreenHeight() - (playerTexture.height * playerScale) - margin;
 
-        for (int i = 0; i < total; i++) {
-            Color cor = (i == selecionado) ? RED : DARKGRAY;
+        // Desenhar imagens ampliadas no canto inferior direito
+        DrawTextureEx(playerTexture, (Vector2){startX + 20, startY - 40}, 0.0f, playerScale, WHITE);
+        ClearBackground(background);
+
+        // Desenha a imagem do título no topo
+        // Redimensionamento e centralização do título
+        float escala = 0.4f; // ajuste conforme necessário (0.5 = metade do tamanho original)
+        int titleWidth = titleTexture.width * escala;
+        int titleX = (GetScreenWidth() - titleWidth) / 2;
+        int titleY = 20; // ajuste se quiser mais alto ou mais baixo
+
+        DrawTextureEx(titleTexture, (Vector2){titleX, titleY}, 0.0f, escala, WHITE);
+
+        for (int i = 0; i < total; i++)
+        {
+            Color cor = (i == selecionado) ? DARKGRAY : WHITE;
             Vector2 pos = {
                 20,
-                GetScreenHeight() - total * 45 - 40 + i * 45
-            };
+                GetScreenHeight() - total * 45 - 40 + i * 45};
             DrawTextEx(fonteMenu, opcoes[i], pos, fontSize, spacing, cor);
         }
 

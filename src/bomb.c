@@ -100,7 +100,7 @@ void ExplodeBomb(int x, int y)
     }
 }
 
-void UpdateBombs(void)
+void UpdateBombs(Sound explosionSound)
 {
     for (int i = 0; i < MAX_BOMBS; i++)
     {
@@ -111,6 +111,7 @@ void UpdateBombs(void)
             {
                 ExplodeBomb(bombs[i].x, bombs[i].y);
                 bombs[i].active = 0;
+                PlaySound(explosionSound);
             }
         }
     }

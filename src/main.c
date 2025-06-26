@@ -12,11 +12,12 @@
 #include "pause.h"
 #include "map_selector.h"
 
-Color fundoPersonalizado = (Color){ 28, 20, 41, 255 };
+Color fundoPersonalizado = (Color){28, 20, 41, 255};
 
 int main(void)
 {
     InitWindow(800, 800, "Mini Bomberman");
+    InitAudioDevice();
     SetExitKey(KEY_NINE);
     SetTargetFPS(60);
 
@@ -25,20 +26,26 @@ int main(void)
     Texture2D playerTexture = LoadTexture("resources/player.png");
     Texture2D enemyTexture = LoadTexture("resources/enemy.png");
     Texture2D bombTexture = LoadTexture("resources/bomb.png");
-
     Texture2D groundTex = LoadTexture("resources/tiles.png");
     Texture2D wallPlain = LoadTexture("resources/wall_plain.png");
     Texture2D destructibleTex = LoadTexture("resources/destructible.png");
     Texture2D exitTex = LoadTexture("resources/exit.png");
     Texture2D powerupBombTex = LoadTexture("resources/powerup_bomb.png");
     Texture2D powerupRangeTex = LoadTexture("resources/powerup_range.png");
+    Texture2D titleTexture = LoadTexture("resources/titulo.png");
+
+    Sound powerupSound = LoadSound("resources/powerup.wav");
+    Sound explosionSound = LoadSound("resources/explosion.wav");
 
     while (!WindowShouldClose())
     {
         while (GetKeyPressed() != 0)
             ;
+        ;
 
-        int choice = ShowMainMenu();
+        int choice = ShowMainMenu(customFont, titleTexture, fundoPersonalizado,
+                                  playerTexture);
+
         if (choice == 4)
             break;
 
@@ -89,26 +96,52 @@ int main(void)
         while (!WindowShouldClose())
         {
             if (player.status)
-                UpdatePlayer();
-            UpdateBombs();
+            UpdatePlayer(powerupSound);
+            UpdateBombs(explosionSound);
             UpdateExplosions();
             UpdateEnemies();
 
             if (IsKeyPressed(KEY_ESCAPE))
             {
-                int podeSalvar = (choice != 2);
-                PauseAction acao = ShowPauseMenu(podeSalvar);
+                printf("[DEBUG] ESC pressionado. Exibindo menu de pausa...\n");
 
-                if (acao == PAUSE_RETURN_TO_MENU)
-                    break;
-                if (acao == PAUSE_EXIT)
+                PauseAction acao = ShowPauseMenu(choice != 2, customFont); // TRUE = jogo, FALSE = mapa personalizado
+
+                printf("[DEBUG] Acao do menu de pausa retornada: %d\n", acao);
+
+                if (acao == PAUSE_RETURN)
                 {
-                    CloseWindow();
-                    return 0;
+                    printf("[DEBUG] Ação: RETURN - continuando o jogo normalmente.\n");
+                    continue;
                 }
-                if (acao == PAUSE_SAVE && podeSalvar)
+                else if (acao == PAUSE_RETURN_TO_MENU)
                 {
+                    printf("[DEBUG] Ação: RETURN_TO_MENU - quebrando loop do jogo para voltar ao menu principal.\n");
+                    break; // volta para o menu principal
+                }
+                else if (acao == PAUSE_EXIT)
+                {
+                    printf("[DEBUG] Ação: EXIT - encerrando ou saindo do editor.\n");
+                    if (choice == 2)
+                    {
+                        printf("[DEBUG] Modo mapa personalizado detectado. Quebrando para voltar à seleção de mapa.\n");
+                        break;
+                    }
+                    else
+                    {
+                        printf("[DEBUG] Encerrando o jogo com CloseWindow().\n");
+                        CloseWindow();
+                        return 0;
+                    }
+                }
+                else if (acao == PAUSE_SAVE && choice != 2)
+                {
+                    printf("[DEBUG] Ação: SAVE - salvando o jogo.\n");
                     SalvarJogo();
+                }
+                else
+                {
+                    printf("[DEBUG] Ação desconhecida ou inválida recebida do menu de pausa: %d\n", acao);
                 }
             }
 
@@ -116,13 +149,12 @@ int main(void)
             ClearBackground(fundoPersonalizado);
 
             DrawLevel(
-                groundTex,           
-                destructibleTex,    
+                groundTex,
+                destructibleTex,
                 wallPlain,
-                exitTex,          
-                powerupBombTex,     
-                powerupRangeTex      
-            );
+                exitTex,
+                powerupBombTex,
+                powerupRangeTex);
 
             DrawBombs(bombTexture);
             DrawExplosions();
@@ -131,23 +163,23 @@ int main(void)
             int gridWidth = MAP_WIDTH * TILE_SIZE;
             int offsetX = (GetScreenWidth() - gridWidth) / 2;
             int offsetY = (GetScreenHeight() - (MAP_HEIGHT * TILE_SIZE)) / 2;
+            float hudFontSize = 30;
+            float spacing = 1;
 
+            // Bombas
             char textoBombas[64];
             sprintf(textoBombas, "Bombas: %d / %d", player.bombasDisponiveis, player.bombasMaximas);
-            DrawText(textoBombas, offsetX, offsetY - 50, 20, BLACK);
+            DrawTextEx(customFont, textoBombas, (Vector2){offsetX, offsetY - 30}, hudFontSize, spacing, WHITE);
 
-            char textoAlcance[64] = "Alcance: ";
-            int baseFontSize = 20 + (player.alcanceExplosao - 1) * 2;
-            char fogo[32] = "";
-            for (int i = 0; i < player.alcanceExplosao; i++)
-                strcat(fogo, "I");
-            strcat(textoAlcance, fogo);
-            int textWidth = MeasureText(textoAlcance, baseFontSize);
-            DrawText(textoAlcance, offsetX + gridWidth - textWidth, offsetY - 50, baseFontSize, RED);
+            // Alcance
+            char textoAlcance[64];
+            sprintf(textoAlcance, "Alcance: %d", player.alcanceExplosao);
+            DrawTextEx(customFont, textoAlcance, (Vector2){offsetX + gridWidth - 120, offsetY - 30}, hudFontSize, spacing, WHITE);
 
-            char pontosTexto[64];
-            sprintf(pontosTexto, "Pontos: %d", player.pontuacao);
-            DrawText(pontosTexto, 10, 10, 20, BLACK);
+            // Pontos
+            char textoPontos[64];
+            sprintf(textoPontos, "Pontos: %d", player.pontuacao);
+            DrawTextEx(customFont, textoPontos, (Vector2){10, 10}, hudFontSize, spacing, WHITE);
 
             if (player.status)
             {
@@ -175,6 +207,7 @@ int main(void)
 
             EndDrawing();
         }
+        choice = -1;
     }
 
     UnloadTexture(playerTexture);
@@ -186,7 +219,12 @@ int main(void)
     UnloadTexture(exitTex);
     UnloadTexture(powerupBombTex);
     UnloadTexture(powerupRangeTex);
+    UnloadTexture(titleTexture);
 
+    UnloadSound(powerupSound);
+    UnloadSound(explosionSound);
+
+    CloseAudioDevice();
     CloseWindow();
     return 0;
 }

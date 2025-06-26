@@ -28,7 +28,7 @@ void CheckPlayerDamage(void)
     }
 }
 
-void UpdatePlayer(void)
+void UpdatePlayer(Sound powerupSound)
 {
     int newX = player.x;
     int newY = player.y;
@@ -64,11 +64,13 @@ void UpdatePlayer(void)
             player.bombasMaximas++;
         player.bombasDisponiveis = player.bombasMaximas;
         map[player.y][player.x] = TILE_VAZIO;
+        PlaySound(powerupSound);
     }
     else if (tile == TILE_POWERUP_EXPLOSAO)
     {
         player.alcanceExplosao++;
         map[player.y][player.x] = TILE_VAZIO;
+        PlaySound(powerupSound);
     }
 
     CheckPlayerDamage();
