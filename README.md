@@ -1,34 +1,76 @@
-# Credits
-Credits to Andrew Hamel whom made it possible for us to use and modify the original project.
-The remanescent files from the original project are the files contained in the .vscode folder aswell as the MakeFile on the root. Otherwise the project would have been hard to make it work properly
 
-# raylib-Bomberman
-This project was modified by the following UFRGS alumni: Matheus Fracaro Tonera, id 00594878 and Eduardo Nunes for its use on a presentation on the final project at the class "Algoritmos e Programação". The projects consists in replicating from scratch a "mini-bomberman" provided by the teacher in class and modifiying it.
+# Mini Bomberman — Algoritmos e Programação (UFRGS)
 
-## To Build
-GitHub doesn't allow empty folders in repositories, so you'll need to create an "obj" folder in the root of the repository before trying to build! After that you have to open the repo's folder in VSCode and simply press F5, to build and execute. Double check the path variables in the Makefile to make sure they point to Raylib on your machine if the linker fails. You can also invoke `make` from the root of the project to build.
+Este é um projeto desenvolvido como parte da disciplina **INF01202 - Algoritmos e Programação** na UFRGS. Ele é uma recriação do clássico **Bomberman**, utilizando a biblioteca gráfica **Raylib** e a linguagem C.
 
-# The game
-Custom Mini Bomberman made from "scratch" with some modifications.
+---
 
-# Manual & Guide
-## CONTROLS
-for the build and menu:
-F5 - Build and Run the project
-ENTER - Select options
+##  Funcionalidades principais
 
-FOR THE GAME:
-W - Move Up
-A - Move Left
-S - Move Back
-D - Move Right
-Up_Arrow_Key - Move Up 
-Left_Arrow_Key - Move Left
-Back_Arrow_Key - Move Back
-Right_Arrow_Key - Move Right
-ESPACE_Key - Place Bombs
+-  Movimentação do jogador em um mapa 2D.
+- Colocação de bombas e explosão com tempo e alcance definidos.
+- Inimigos com movimentação e colisão com o jogador.
+- Blocos destrutíveis e indestrutíveis.
+- Saída oculta que aparece após a destruição da parede destrutível.
+- Power-ups: preenchimento do número de bombas e aumento do alcance da explosão.
+- Editor de mapas com salvamento no formato `.txt`.
+- Menu de pausa com opções.
+- Carregamento e seleção de mapas personalizados pelo menu inicial.
 
+---
 
+## Como compilar
 
-## LOAD MAPSx'
-select the "Carregar Mapa" option on the menu and from there select a custom .txt file on your pc. Note that the file will only work if the map is properly made.
+### Requisitos
+
+- [Raylib](https://www.raylib.com/) instalada (v4.5 ou superior)
+- Compilador C (MinGW no Windows, GCC no Linux/Mac)
+
+### Comandos
+
+Para compilar o jogo:
+
+```bash
+make
+```
+
+Para remover os arquivos compilados:
+
+```bash
+make clean
+```
+
+---
+
+## Como jogar
+
+- **Setas e WASD**: movimentação do jogador.
+- **espaço**: planta uma bomba.
+- **ESC**: abre o menu de pausa.
+- **Menu inicial**:
+  - **Novo jogo**: inicia um novo mapa.
+  - **Carregar jogo**: carrega um save.
+  - **Mapa personalizado**: permite escolher e jogar mapas salvos.
+  - **Editor de mapas**: cria e salva novos mapas.
+
+---
+
+## Salvamento e Mapas
+
+- O progresso pode ser salvo pelo menu de pausa.
+- Mapas personalizados são do tipo `.txt` contendo:
+  - `W` para tiles indestrutíveis
+  - `B` para tiles destrutíveis
+  - ` ` (espaço) para tiles livres
+
+---
+
+## Autores
+
+Projeto desenvolvido por **Bruna Zamboni Lima**, **Eduardo Franceschina Nunes** e **Matheus Fracaro Tonera**  com base nas especificações da disciplina **INF01202 - Algoritmos e Programação (UFRGS)**.
+
+---
+
+## Créditos
+
+Créditos para Andrew Hamel, que fez ser possível a continuidade do projeto com base nos arquivos base do Make e da pasta .vscode de um dos seus projetos anteriores.
