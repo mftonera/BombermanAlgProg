@@ -20,7 +20,7 @@ typedef struct {
 } Bomb;
 
 void InitBombs(void);
-void UpdateBombs(Sound explosionSound);
+void UpdateBombs(Sound boom);
 void DrawBombs(Texture2D bombTexture);
 void PlantBomb(int x, int y);
 

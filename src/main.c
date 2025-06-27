@@ -12,17 +12,19 @@
 #include "pause.h"
 #include "map_selector.h"
 
-Color fundoPersonalizado = (Color){28, 20, 41, 255};
+Color fundoPersonalizado = (Color){28, 20, 41, 255}; // cor personalizada de fundo
 
 int main(void)
 {
-    InitWindow(800, 800, "Mini Bomberman");
-    InitAudioDevice();
-    SetExitKey(KEY_NINE);
-    SetTargetFPS(60);
+    InitWindow(800, 800, "Mini Bomberman"); // cria janela do jogo
+    InitAudioDevice(); // Inicializa sistema de Som
+    SetExitKey(KEY_NINE); // Setta tecla 9 para fechamento abrupto 
+    SetTargetFPS(60); // setta fps em 60 
 
+    // Carrega a fonte 
     Font customFont = LoadFont("resources/fonte.ttf");
 
+    // carrega as texturas
     Texture2D playerTexture = LoadTexture("resources/player.png");
     Texture2D enemyTexture = LoadTexture("resources/enemy.png");
     Texture2D bombTexture = LoadTexture("resources/bomb.png");
@@ -34,119 +36,116 @@ int main(void)
     Texture2D powerupRangeTex = LoadTexture("resources/powerup_range.png");
     Texture2D titleTexture = LoadTexture("resources/titulo.png");
 
+    // carrega os sons
     Sound powerupSound = LoadSound("resources/powerup.wav");
-    Sound explosionSound = LoadSound("resources/explosion.wav");
+    Sound boom = LoadSound("resources/explosion.wav");
 
+    // loop de opções
     while (!WindowShouldClose())
     {
-        while (GetKeyPressed() != 0)
+        while (GetKeyPressed() != 0) // limpa o buffer de entrada
             ;
         ;
 
-        int choice = ShowMainMenu(customFont, titleTexture, fundoPersonalizado, playerTexture);
+        // exibe o main menu
+        int choice = ShowMainMenu(customFont, titleTexture, fundoPersonalizado,
+                                  playerTexture);
 
-        if (choice == 4)
+        if (choice == 4) // ultima opção fecha a janela
             break;
 
-        if (choice == 0)
+        if (choice == 0) // primeira opção, inicia novo jogo
         {
-            InitLevel();
-            InitPlayer();
-            InitBombs();
-            InitEnemies();
+            InitLevel(); // carrega mapa
+            InitPlayer(); // carrega player
+            InitBombs(); // carrega bombas  
+            InitEnemies(); // carrega inimigos
         }
-        else if (choice == 1)
+        else if (choice == 1) // segunda opção (carregar o save)
         {
             if (!CarregarJogo())
             {
                 InitLevel();
                 InitPlayer();
                 InitBombs();
-                InitEnemies();
+                InitEnemies(); // carrega mapa, player, bombas e inimigos
             }
         }
-        else if (choice == 2)
+        else if (choice == 2) // terceira opção, carrega mapa personalizado
         {
-            char *path = SelecionarMapaPersonalizado();
-            if (path != NULL)
+            char *path = SelecionarMapaPersonalizado(); // abre menu de seleção de mapas
+            if (path != NULL) 
             {
-                if (!CarregarMapaDeArquivo(path))
+                if (!CarregarMapaDeArquivo(path)) // carrega o mapa personalizado
                 {
                     InitLevel();
                 }
-                free(path);
+                free(path); // Libera memória
                 InitPlayer();
                 InitBombs();
-                InitEnemies();
+                InitEnemies(); // carrega player, bombas e inimigos
             }
             else
             {
-                continue;
+                continue; // volta ao menu principal caso seja cancelado
             }
         }
-        else if (choice == 3)
+        else if (choice == 3) // quarta opção, carrega o editor
         {
-            while (GetKeyPressed() != 0)
+            while (GetKeyPressed() != 0) // limpa entrada pressionada
                 ;
-            AbrirEditorDeMapa();
-            continue;
+            AbrirEditorDeMapa(); // abre editor
+            continue; // retorna ao menu prinicpal
         }
 
+
+        // loop do jogo
         while (!WindowShouldClose())
         {
-            if (player.status)
+            if (player.status) // se o jogador estiver vivo
             UpdatePlayer(powerupSound);
-            UpdateBombs(explosionSound);
+            UpdateBombs(boom);
             UpdateExplosions();
-            UpdateEnemies();
+            UpdateEnemies(); // atualiza player, bombas, explosões e inimigos
 
+            // caso seja pressionado ESC, entra no menu de pause 
             if (IsKeyPressed(KEY_ESCAPE))
             {
-                printf("[DEBUG] ESC pressionado. Exibindo menu de pausa...\n");
-
-                PauseAction acao = ShowPauseMenu(choice != 2, customFont); // TRUE = jogo, FALSE = mapa personalizado
-
-                printf("[DEBUG] Acao do menu de pausa retornada: %d\n", acao);
-
+                PauseAction acao = ShowPauseMenu(choice != 2, customFont); // abre menu de pause de acordo com o modo | TRUE pra jogo, FALSE para mapa personalizado e editor
                 if (acao == PAUSE_RETURN)
                 {
-                    printf("[DEBUG] Ação: RETURN - continuando o jogo normalmente.\n");
-                    continue;
+                    continue; // volta ao jogo
                 }
                 else if (acao == PAUSE_RETURN_TO_MENU)
                 {
-                    printf("[DEBUG] Ação: RETURN_TO_MENU - quebrando loop do jogo para voltar ao menu principal.\n");
                     break; // volta para o menu principal
                 }
-                else if (acao == PAUSE_EXIT)
+                else if (acao == PAUSE_EXIT) // sai do jogo/editor
                 {
-                    printf("[DEBUG] Ação: EXIT - encerrando ou saindo do editor.\n");
                     if (choice == 2)
                     {
-                        printf("[DEBUG] Modo mapa personalizado detectado. Quebrando para voltar à seleção de mapa.\n");
                         break;
                     }
                     else
                     {
-                        printf("[DEBUG] Encerrando o jogo com CloseWindow().\n");
-                        CloseWindow();
+                        CloseWindow(); // fecha o jogo completamnete
                         return 0;
                     }
                 }
-                else if (acao == PAUSE_SAVE && choice != 2)
+                else if (acao == PAUSE_SAVE && choice != 2) // salva o jogo (não disponível em mapas personalizados)
                 {
-                    printf("[DEBUG] Ação: SAVE - salvando o jogo.\n");
                     SalvarJogo();
                 }
                 else
                 {
-                    printf("[DEBUG] Ação desconhecida ou inválida recebida do menu de pausa: %d\n", acao);
                 }
             }
 
+            // inicializa o desenho da tela
             BeginDrawing();
             ClearBackground(fundoPersonalizado);
 
+            // desenha o mapa com os elementos 
             DrawLevel(
                 groundTex,
                 destructibleTex,
@@ -155,47 +154,49 @@ int main(void)
                 powerupBombTex,
                 powerupRangeTex);
 
-            DrawBombs(bombTexture);
-            DrawExplosions();
-            DrawEnemies(enemyTexture);
+            DrawBombs(bombTexture); // desenha bomba com textura
+            DrawExplosions(); // desenha explosões
+            DrawEnemies(enemyTexture); // desenha inimigos com texutra
 
+
+            // setters para desenho da HUD
             int gridWidth = MAP_WIDTH * TILE_SIZE;
             int offsetX = (GetScreenWidth() - gridWidth) / 2;
             int offsetY = (GetScreenHeight() - (MAP_HEIGHT * TILE_SIZE)) / 2;
             float hudFontSize = 30;
             float spacing = 1;
 
-            // Bombas
+            // Exibe texto com as bombas
             char textoBombas[64];
             sprintf(textoBombas, "Bombas: %d / %d", player.bombasDisponiveis, player.bombasMaximas);
             DrawTextEx(customFont, textoBombas, (Vector2){offsetX, offsetY - 30}, hudFontSize, spacing, WHITE);
 
-            // Alcance
+            // Exibe texto com o alcance
             char textoAlcance[64];
             sprintf(textoAlcance, "Alcance: %d", player.alcanceExplosao);
             DrawTextEx(customFont, textoAlcance, (Vector2){offsetX + gridWidth - 120, offsetY - 30}, hudFontSize, spacing, WHITE);
 
-            // Pontos
+            // Exibe texto com os pontos
             char textoPontos[64];
             sprintf(textoPontos, "Pontos: %d", player.pontuacao);
             DrawTextEx(customFont, textoPontos, (Vector2){10, 10}, hudFontSize, spacing, WHITE);
 
             if (player.status)
             {
-                DrawPlayer(playerTexture);
+                DrawPlayer(playerTexture); // se o jogador estiver vivo, desenha ele na tela
             }
-            else
+            else // caso morto :C, desenha tela de game over
             {
                 DrawText("GAME  OVER", 250, 220, 40, RED);
                 DrawText("Pressione R para reiniciar ou ESC para sair", 120, 280, 20, DARKGRAY);
 
-                if (IsKeyPressed(KEY_R))
+                if (IsKeyPressed(KEY_R)) // caso jogador pressione R, reinicia o mapa (gera um novo)
                 {
                     InitLevel();
                     InitPlayer();
                     InitBombs();
                     InitEnemies();
-                    while (GetKeyPressed() != 0)
+                    while (GetKeyPressed() != 0) // limpa buffer
                         ;
                     continue;
                 }
@@ -204,11 +205,13 @@ int main(void)
                     break;
             }
 
-            EndDrawing();
+            EndDrawing(); // finaliza desenho
         }
-        choice = -1;
+        choice = -1; // reseta escolha ao finalizar a jogatina
     }
 
+
+    // descarrega texturas
     UnloadTexture(playerTexture);
     UnloadTexture(enemyTexture);
     UnloadTexture(bombTexture);
@@ -220,10 +223,12 @@ int main(void)
     UnloadTexture(powerupRangeTex);
     UnloadTexture(titleTexture);
 
+    // descarrega sons
     UnloadSound(powerupSound);
-    UnloadSound(explosionSound);
+    UnloadSound(boom);
 
+    // fecha sistema de som e janela
     CloseAudioDevice();
     CloseWindow();
-    return 0;
+    return 0; // finaliza programa
 }

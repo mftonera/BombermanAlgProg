@@ -91,15 +91,17 @@ void UpdateEnemies(void)
         if (!enemies[i].alive)
             continue;
 
-        enemies[i].moveTimer += GetFrameTime();
+        enemies[i].moveTimer += GetFrameTime(); // Incrementa o timer com o tempo do frame atual
         if (enemies[i].moveTimer < moveDelay)
             continue; // ainda não é hora de mover
 
         enemies[i].moveTimer = 0; // resetar timer após mover
 
+        // Calcula a nova posição do inimigo (next X e Y)
         int nx = enemies[i].x + enemies[i].dirX;
         int ny = enemies[i].y + enemies[i].dirY;
 
+        // Verifica se a nova posição é válida (dentro dos limites do mapa e não colidindo com paredes ou inimigos)
         bool bateu = (nx < 0 || ny < 0 || nx >= MAP_WIDTH || ny >= MAP_HEIGHT ||
                       map[ny][nx] == TILE_PAREDE_INDESTRUTIVEL ||
                       map[ny][nx] == TILE_PAREDE_DESTRUTIVEL ||
@@ -115,13 +117,16 @@ void UpdateEnemies(void)
                 int dx = (d == 0) - (d == 1); // 1 ou -1 para X
                 int dy = (d == 2) - (d == 3); // 1 ou -1 para Y
 
+                // Calcula a nova posição com a direção aleatória
                 int tx = enemies[i].x + dx;
                 int ty = enemies[i].y + dy;
 
+                // Verifica se a nova posição é válida
                 if (tx >= 0 && tx < MAP_WIDTH &&
                     ty >= 0 && ty < MAP_HEIGHT &&
                     map[ty][tx] == TILE_VAZIO)
                 {
+                    // Se for válida, atualiza a posição do inimigo
                     enemies[i].dirX = dx;
                     enemies[i].dirY = dy;
                     break;
@@ -130,24 +135,25 @@ void UpdateEnemies(void)
         }
         else
         {
+            // Se não bateu, atualiza a posição do inimigo
             enemies[i].x = nx;
             enemies[i].y = ny;
         }
 
-        // Atualiza a direção que o inimigo "olha" com base no movimento horizontal
+        // Atualiza a direção do sprite do inimigo com base no movimento horizontal
         if (enemies[i].dirX != 0)
         {
             enemies[i].direcaoSprite = enemies[i].dirX;
         }
 
-        // Checar dano por fogo
+        // Checar dano por explosão
         if (IsExplosionAt(enemies[i].x, enemies[i].y))
         {
             enemies[i].alive = 0;
             player.pontuacao += 100;
         }
 
-        // Checar colisão com jogador
+        // Checar colisão com jogador (se o inimigo está na mesma posição que o jogador, ele morre :( )
         if (player.status && enemies[i].x == player.x && enemies[i].y == player.y)
         {
             player.status = 0;
@@ -165,21 +171,30 @@ void DrawEnemies(Texture2D enemyTexture)
         if (!enemies[i].alive)
             continue;
 
-        Rectangle sourceRec = { 0.0f, 0.0f, (float)enemyTexture.width, (float)enemyTexture.height };
+        Rectangle sourceRec = { 0.0f, 0.0f, (float)enemyTexture.width, (float)enemyTexture.height }; // Define a região da textura a ser desenhada (é usado por causa da alteração de "direção" do sprite)
         
-        if (enemies[i].direcaoSprite == 1) {
-            sourceRec.width = -sourceRec.width;
-        }
+        // Altera a direção do sprite com base na direção da movimentação do inimigo
+        switch (enemies[i].direcaoSprite) {
+        case 1: // Direita
+        sourceRec.width = -sourceRec.width;
+        break;
 
+        case -1: // Esquerda
+        sourceRec.width = sourceRec.width; 
+        break;
+    }
+
+        // Define a posição de destino do inimigo na tela
         Vector2 destPos = { 
             (float)(offsetX + enemies[i].x * TILE_SIZE), 
             (float)(offsetY + enemies[i].y * TILE_SIZE) 
         };
 
-        DrawTextureRec(enemyTexture, sourceRec, destPos, WHITE);
+        DrawTextureRec(enemyTexture, sourceRec, destPos, WHITE); // Desenha o inimigo na tela com a textura e a direção correta
     }
 }
 
+// Da unload na textura dos inimigos
 void UnloadEnemies(void)
 {
     static bool descarregado = false;
