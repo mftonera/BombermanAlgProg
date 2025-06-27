@@ -11,7 +11,7 @@ typedef struct {
     int alcanceExplosao;
     int status; // 1 = vivo, 0 = morto
     int pontuacao;
-    int facingDirection;
+    int direcaoSprite; // -1 = direita, 1 = esquerda
 } Player;
 
 extern Player player;

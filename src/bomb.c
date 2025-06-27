@@ -161,7 +161,7 @@ void AddExplosion(int x, int y)
         {
             explosions[i].x = x;
             explosions[i].y = y;
-            explosions[i].timer = 0.5f;
+            explosions[i].timer = 0.8f;
             explosions[i].active = 1;
             break;
         }

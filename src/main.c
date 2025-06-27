@@ -43,8 +43,7 @@ int main(void)
             ;
         ;
 
-        int choice = ShowMainMenu(customFont, titleTexture, fundoPersonalizado,
-                                  playerTexture);
+        int choice = ShowMainMenu(customFont, titleTexture, fundoPersonalizado, playerTexture);
 
         if (choice == 4)
             break;

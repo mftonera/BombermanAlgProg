@@ -9,6 +9,7 @@
 Enemy enemies[MAX_ENEMIES];
 Texture2D enemyTexture;
 
+// Verifica se há um inimigo na posição (x, y), ignorando o índice do inimigo atual
 bool IsEnemyAt(int x, int y, int ignoreIndex)
 {
     for (int i = 0; i < MAX_ENEMIES; i++)
@@ -19,15 +20,17 @@ bool IsEnemyAt(int x, int y, int ignoreIndex)
     return false;
 }
 
+// Inicializa os inimigos, carregando a textura e posicionando-os aleatoriamente no mapa
 void InitEnemies(void)
 {
-    static bool texturaCarregada = false;
+    static bool texturaCarregada = false; // 'static bool' faz com que a variável mantenha seu valor entre as chamadas da função (ai não precisa carregar a textura toda vez que a função é chamada)
     if (!texturaCarregada)
     {
         enemyTexture = LoadTexture("resources/enemy.png");
         texturaCarregada = true;
     }
 
+    // Garante que a semente do gerador de números aleatórios seja inicializada apenas uma vez
     static bool sementeInicializada = false;
     if (!sementeInicializada)
     {
@@ -35,6 +38,7 @@ void InitEnemies(void)
         sementeInicializada = true;
     }
 
+    // Loop de inicialização dos inimigos
     for (int i = 0; i < MAX_ENEMIES; i++)
     {
         int x, y, tentativas = 0;
@@ -45,6 +49,7 @@ void InitEnemies(void)
             y = rand() % MAP_HEIGHT;
             tentativas++;
 
+            // Verifica se a posição (x, y) já está ocupada por outro inimigo
             bool ocupado = false;
             for (int j = 0; j < i; j++)
             {
@@ -55,11 +60,13 @@ void InitEnemies(void)
                 }
             }
 
+            // Se a posição é vazia e não está ocupada por outro inimigo, e não é muito próxima do início (x > 3 ou y > 3), então é uma posição válida
             if (map[y][x] == TILE_VAZIO && !ocupado && (x > 3 || y > 3))
                 break;
 
-        } while (tentativas < 100);
+        } while (tentativas < 100); // Tenta até 100 vezes encontrar uma posição válida
 
+        // Define a posição do inimigo
         enemies[i].x = x;
         enemies[i].y = y;
 
@@ -67,12 +74,14 @@ void InitEnemies(void)
         enemies[i].dirX = (d == 0) - (d == 1);
         enemies[i].dirY = (d == 2) - (d == 3);
 
+        // Inicializa as propriedades do inimigo
         enemies[i].alive = 1;
         enemies[i].moveTimer = 0;
-        enemies[i].facingDirection = 1;
+        enemies[i].direcaoSprite = 1;
     }
 }
 
+// Atualiza a lógica dos inimigos
 void UpdateEnemies(void)
 {
     float moveDelay = 0.8f; // segundos entre cada passo
@@ -128,7 +137,7 @@ void UpdateEnemies(void)
         // Atualiza a direção que o inimigo "olha" com base no movimento horizontal
         if (enemies[i].dirX != 0)
         {
-            enemies[i].facingDirection = enemies[i].dirX;
+            enemies[i].direcaoSprite = enemies[i].dirX;
         }
 
         // Checar dano por fogo
@@ -158,7 +167,7 @@ void DrawEnemies(Texture2D enemyTexture)
 
         Rectangle sourceRec = { 0.0f, 0.0f, (float)enemyTexture.width, (float)enemyTexture.height };
         
-        if (enemies[i].facingDirection == 1) {
+        if (enemies[i].direcaoSprite == 1) {
             sourceRec.width = -sourceRec.width;
         }
 

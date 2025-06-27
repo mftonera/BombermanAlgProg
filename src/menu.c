@@ -2,24 +2,21 @@
 #include <stdio.h>
 #include "menu.h"
 
-int ShowMainMenu(Font font, Texture2D titleTexture, Color background,
-                 Texture2D playerTexture)
-
-{
+int ShowMainMenu(Font font, Texture2D titleTexture, Color background, Texture2D playerTexture){
     const char *opcoes[] = {
         "1. Novo Jogo",
         "2. Continuar",
         "3. Carregar Mapa",
         "4. Editor de Mapa",
         "5. Sair"};
-    int total = 5;
-    int selecionado = 0;
+    int total = 5; // Total de opções no menu
+    int selecionado = 0; // Índice da opção selecionada
 
     // Carrega a fonte personalizada
     Font fonteMenu = LoadFont("resources/fonte.ttf");
     float fontSize = 30;
 
-    // ✅ Aguarda o usuário soltar ENTER antes de começar
+    // Aguarda o usuário soltar ENTER antes de começar
     while (IsKeyDown(KEY_ENTER))
     {
         BeginDrawing();
@@ -30,21 +27,21 @@ int ShowMainMenu(Font font, Texture2D titleTexture, Color background,
 
     while (!WindowShouldClose())
     {
-        // Movimento
+        // Logica de navegação do menu
         if (IsKeyPressed(KEY_DOWN))
             selecionado = (selecionado + 1) % total;
         if (IsKeyPressed(KEY_UP))
             selecionado = (selecionado - 1 + total) % total;
 
-        // Escolha
+        // Ação ao pressionar ENTER
         if (IsKeyPressed(KEY_ENTER))
         {
             UnloadFont(fonteMenu); // libera fonte antes de sair
             return selecionado;
         }
 
-        // Desenho
         BeginDrawing();
+
         // Dimensões e posição base
         float playerScale = 8.5f;
         int spacing = 10;
@@ -58,14 +55,15 @@ int ShowMainMenu(Font font, Texture2D titleTexture, Color background,
         ClearBackground(background);
 
         // Desenha a imagem do título no topo
-        // Redimensionamento e centralização do título
         float escala = 0.4f; // ajuste conforme necessário (0.5 = metade do tamanho original)
         int titleWidth = titleTexture.width * escala;
         int titleX = (GetScreenWidth() - titleWidth) / 2;
-        int titleY = 20; // ajuste se quiser mais alto ou mais baixo
+        int titleY = 20;
 
         DrawTextureEx(titleTexture, (Vector2){titleX, titleY}, 0.0f, escala, WHITE);
 
+
+        // Deixa a opção selecionada em destaque (DARKGRAY)
         for (int i = 0; i < total; i++)
         {
             Color cor = (i == selecionado) ? DARKGRAY : WHITE;

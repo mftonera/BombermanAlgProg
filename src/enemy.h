@@ -10,7 +10,7 @@ typedef struct {
     int dirX, dirY; // direção atual
     int alive;
     float moveTimer;
-    int facingDirection;
+    int direcaoSprite; // -1 = direita, 1 = esquerda
 } Enemy;
 
 extern Enemy enemies[MAX_ENEMIES];
